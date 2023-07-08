@@ -27,11 +27,25 @@ class RandomTestSuiteSearchAlgorithm(GenerationAlgorithm):
         self.before_search_start()
         solution = self._chromosome_factory.get_chromosome()
         self.before_first_search_iteration(solution)
+        coverageCache = 0
+        coverageCounter = 1
+        minCov = config.configuration.stopping.minimum_coverage_quick
+        minIter = config.configuration.stopping.minimum_iteration_quick
         while self.resources_left() and solution.get_fitness() != 0.0:
             candidate = self._chromosome_factory.get_chromosome()
             if candidate.get_fitness() < solution.get_fitness():
                 solution = candidate
             self.after_search_iteration(solution)
+            #The following checks if minimum coverage is reached, only if minimum-coverage-quick is below 1.0
+            if minCov < 1.0:
+                if solution.get_coverage() == coverageCache and coverageCache => minCov:
+                    if coverageCounter >= minIter:
+                        break
+                    else:
+                        coverageCounter = coverageCounter +1
+                else:
+                    coverageCache = solution.get_coverage()
+                    coverageCounter = 1
         self.after_search_finish()
         return solution
 
