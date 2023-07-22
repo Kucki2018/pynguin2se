@@ -203,6 +203,48 @@ class MaxIterationsStoppingCondition(StoppingCondition):
         return f"Used iterations: {self.current_value()}/{self.limit()}"
 
 
+
+class MaxIterationsStoppingCondition(StoppingCondition):
+    """A stopping condition that checks the maximum number of test cases."""
+
+    def __init__(self, max_iterations: int):
+        """Create new MaxIterationsStoppingCondition.
+
+        Args:
+            max_iterations: the maximum number of allowed iterations.
+        """
+        super().__init__()
+        self._num_iterations = 0
+        assert max_iterations > 0.0
+        self._max_iterations = max_iterations
+
+    def current_value(self) -> int:  # noqa: D102
+        return self._num_iterations
+
+    def limit(self) -> int:  # noqa: D102
+        return self._max_iterations
+
+    def is_fulfilled(self) -> bool:  # noqa: D102
+        return self._num_iterations >= self._max_iterations
+
+    def reset(self) -> None:  # noqa: D102
+        self._num_iterations = 0
+
+    def set_limit(self, limit: int) -> None:  # noqa: D102
+        self._max_iterations = limit
+
+    def before_search_start(self, start_time_ns: int) -> None:  # noqa: D102
+        self._num_iterations = 0
+
+    def after_search_iteration(  # noqa: D102
+        self, best: tsc.TestSuiteChromosome
+    ) -> None:
+        self._num_iterations += 1
+
+    def __str__(self):
+        return f"Used iterations: {self.current_value()}/{self.limit()}"
+
+
 class MaxTestExecutionsStoppingCondition(StoppingCondition):
     """A stopping condition that checks the maximum number of test case executions."""
 
